@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>AI in your close, checks built in</title>
+<!-- The icon link below is an inline SVG data URI in the theme's accent, not
+     a file. A deck is one self contained HTML file that has to work from a
+     Pages URL, from a double clicked file and from a USB stick, and an
+     external favicon.ico only works in the first of the three.
+
+     This comment does not name its own placeholder token, deliberately. The
+     substitution in build.py replaces every occurrence, so a comment that
+     spells the token out gets the whole icon pasted into it and ships the
+     link twice. The font comment below has the same shape and gets away
+     with it because a query string in a comment is invisible. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23028090'/><text x='16' y='23' font-family='Helvetica,Arial,sans-serif' font-size='21' font-weight='700' fill='%23fff' text-anchor='middle'>r</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- css2?family=Caladea:wght@400;700&family=Carlito:wght@400;700&family=Figtree:wght@400;600;700;800&display=swap is the theme's font link. Exactly one of:
+     daylight  css2?family=Caladea:wght@400;700&family=Carlito:wght@400;700&family=Figtree:wght@400;600;700;800&display=swap
+     paper     css2?family=Gelasio:ital,wght@0,400;0,700;1,400;1,700&display=swap -->
+<link href="https://fonts.googleapis.com/css2?family=Caladea:wght@400;700&family=Carlito:wght@400;700&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------
+   Raygency / PraxisLoop house deck grammar, V10.
+   Every measurement is expressed in --in, one tenth of the stage
+   width, so the layout is dimensionally identical to the source
+   PowerPoint at any canvas size. --pt is --in / 72.
+   Caladea is metric compatible with Cambria, Carlito with Calibri,
+   so line breaks fall where they fall in the .pptx.
+   --------------------------------------------------------------- */
+:root{
+  --teal:#028090;
+  --mint:#02C39A;
+  --teal-deep:#0D9488;      /* title slide only, see HOUSE-TEMPLATE.md */
+  --ink:#0B2F36;
+  --ink-soft:#4A4A4A;
+  --muted:#5C7178;
+  --card:#F1F6F6;
+  --tip-bg:#FBEFE8;      /* shortcut card ground: the burnt accent at the weight a ground can carry without becoming a highlight */
+  --card-line:#C9D9DB;
+  --dark-bg:#0B2F36;
+  --dark-card:#15464E;
+  --dark-line:#2A5C64;
+  --dark-body:#8FB3B8;
+  --burnt:#C1440E;
+  --page:#FFFFFF;
+
+  --stage-w:min(100vw, 177.78dvh);
+  --in:calc(var(--stage-w) / 10);
+  --pt:calc(var(--in) / 72);
+
+  --margin:calc(.525 * var(--in));
+  --content:calc(8.925 * var(--in));
+  --head:'Caladea',Cambria,Georgia,serif;
+  --body:'Carlito',Calibri,'Segoe UI',-apple-system,sans-serif;
+  --brand:'Figtree','Montserrat',-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:'Courier New',Courier,monospace;
+
+  color-scheme:light;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory}
+body{
+  background:#1a1a1a;
+  font-family:var(--body);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---- stage ---------------------------------------------------- */
+.slide{
+  min-height:100dvh;
+  display:flex;align-items:center;justify-content:center;
+  scroll-snap-align:start;
+}
+.stage{
+  position:relative;
+  width:var(--stage-w);
+  height:calc(var(--stage-w) * .5625);
+  background:var(--page);
+  overflow:hidden;
+  flex:none;
+}
+.stage.dark{background:var(--dark-bg)}
+
+/* ---- shared furniture ----------------------------------------- */
+.eyebrow{
+  position:absolute;left:var(--margin);top:calc(.165 * var(--in));
+  width:var(--content);
+  font-size:calc(8.25 * var(--pt));font-weight:700;
+  letter-spacing:.09em;
+  text-transform:uppercase;color:var(--teal);
+}
+.dark .eyebrow{color:var(--mint)}
+
+.title{
+  position:absolute;left:var(--margin);top:calc(.3375 * var(--in));
+  width:var(--content);
+  font-family:var(--head);
+  font-size:calc(25.5 * var(--pt));font-weight:700;line-height:1.18;
+  color:var(--ink);
+}
+.dark .title{color:#fff}
+
+.pageno{
+  position:absolute;left:calc(9.075 * var(--in));top:calc(5.28 * var(--in));
+  font-size:calc(9.5 * var(--pt));color:var(--muted);
+}
+.dark .pageno{color:var(--mint)}
+
+.kicker{
+  position:absolute;left:var(--margin);top:calc(4.31 * var(--in));
+  width:var(--content);
+  font-size:calc(11.2 * var(--pt));line-height:1.45;color:var(--teal);
+}
+.dark .kicker{color:var(--mint)}
+
+/* The single emphasis band. One per slide, at most. */
+.band{
+  position:absolute;left:var(--margin);top:calc(3.7125 * var(--in));
+  width:var(--content);min-height:calc(1.0125 * var(--in));
+  background:var(--burnt);color:#fff;
+  padding:calc(.15 * var(--in)) calc(.30 * var(--in));
+  display:flex;flex-direction:column;justify-content:center;gap:calc(.06 * var(--in));
+}
+.band b{font-family:var(--head);font-size:calc(14.25 * var(--pt));font-weight:700;line-height:1.3}
+.band span{font-size:calc(10.5 * var(--pt));line-height:1.45;opacity:.93}
+
+/* The recovery strip. Sits under the band, tells the room what to
+   do when their run did not produce what the slide just promised. */
+.strip{
+  position:absolute;left:var(--margin);top:calc(4.8156 * var(--in));
+  width:var(--content);min-height:calc(.465 * var(--in));
+  background:var(--dark-card);border:calc(1.1 * var(--pt)) solid var(--mint);
+  padding:calc(.10 * var(--in)) calc(.20 * var(--in));
+  display:flex;align-items:center;
+  font-size:calc(9.4 * var(--pt));line-height:1.4;color:var(--mint);
+}
+.strip b{font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-right:calc(.14 * var(--in));white-space:nowrap}
+
+/* ---- card grids ------------------------------------------------ */
+.grid{
+  position:absolute;left:var(--margin);top:calc(1.3875 * var(--in));
+  width:var(--content);display:grid;gap:calc(.20 * var(--in));
+}
+.grid.three{grid-template-columns:repeat(3,1fr)}
+.grid.four{grid-template-columns:repeat(4,1fr);top:calc(1.425 * var(--in))}
+.grid.two{grid-template-columns:repeat(2,1fr)}
+
+.card{
+  background:var(--card);border:calc(1 * var(--pt)) solid var(--card-line);
+  padding:calc(.2625 * var(--in));
+  display:flex;flex-direction:column;
+}
+.dark .card{background:var(--dark-card);border-color:var(--dark-line)}
+.grid.three .card{min-height:calc(2.2875 * var(--in))}
+.grid.four .card{min-height:calc(2.025 * var(--in))}
+
+.badge{
+  width:calc(.33 * var(--in));height:calc(.33 * var(--in));
+  background:var(--teal);color:#fff;
+  font-size:calc(11.2 * var(--pt));font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:calc(.16 * var(--in));flex:none;align-self:flex-start;
+}
+.dark .badge{background:var(--mint);color:var(--ink)}
+.badge.label{width:auto;padding:0 calc(.12 * var(--in));font-size:calc(9.5 * var(--pt));letter-spacing:.06em;text-transform:uppercase}
+
+.card h3{
+  font-family:var(--head);
+  font-size:calc(14.2 * var(--pt));font-weight:700;line-height:1.25;
+  color:var(--ink);margin-bottom:calc(.12 * var(--in));
+}
+.dark .card h3{color:#fff}
+.card p{font-size:calc(9.8 * var(--pt));line-height:1.5;color:var(--muted)}
+.dark .card p{color:var(--dark-body)}
+.grid.four .card h3{font-size:calc(10.1 * var(--pt))}
+.grid.four .card p{font-size:calc(8.6 * var(--pt))}
+
+.card ul{list-style:none;font-size:calc(9.8 * var(--pt));line-height:1.7;color:var(--muted)}
+.card li{padding-left:calc(.17 * var(--in));position:relative;margin-bottom:calc(.07 * var(--in))}
+.card li::before{
+  content:'';position:absolute;left:0;top:calc(.1 * var(--in));
+  width:calc(.055 * var(--in));height:calc(.055 * var(--in));background:var(--teal);
+}
+.dark .card li::before{background:var(--mint)}
+
+/* ---- title slide ----------------------------------------------- */
+.t-eyebrow{
+  position:absolute;left:calc(.62 * var(--in));top:calc(1.66 * var(--in));
+  font-size:calc(12 * var(--pt));color:var(--teal-deep);
+}
+.t-h1{
+  position:absolute;left:calc(.62 * var(--in));top:calc(2.00 * var(--in));
+  width:calc(8.95 * var(--in));
+  font-family:var(--brand);
+  font-size:calc(39 * var(--pt));font-weight:700;line-height:1.12;
+  color:var(--teal-deep);
+}
+.t-rule{
+  position:absolute;left:calc(.62 * var(--in));top:calc(3.32 * var(--in));
+  width:calc(1.15 * var(--in));height:calc(.04 * var(--in));background:var(--teal-deep);
+}
+.t-stand{
+  position:absolute;left:calc(.62 * var(--in));top:calc(3.58 * var(--in));
+  width:calc(8.67 * var(--in));
+  font-size:calc(12 * var(--pt));line-height:1.5;color:var(--teal-deep);
+}
+.t-by{
+  position:absolute;left:calc(.62 * var(--in));top:calc(4.28 * var(--in));
+  font-size:calc(12.5 * var(--pt));font-weight:700;color:var(--ink-soft);
+}
+.t-meta{
+  position:absolute;left:calc(.62 * var(--in));top:calc(4.56 * var(--in));
+  font-size:calc(10.5 * var(--pt));color:var(--teal-deep);
+}
+.t-mark{
+  position:absolute;left:calc(.62 * var(--in));top:calc(.46 * var(--in));
+  font-family:var(--brand);
+  font-size:calc(13 * var(--pt));font-weight:800;letter-spacing:.02em;color:var(--ink);
+}
+.t-mark em{font-style:normal;color:var(--teal-deep)}
+
+/* ---- timeline (agenda) ----------------------------------------- */
+.timeline{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);display:flex;flex-direction:column;
+}
+.tl-row{
+  display:grid;grid-template-columns:calc(.95 * var(--in)) 1fr;
+  gap:calc(.28 * var(--in));align-items:baseline;
+  padding:calc(.17 * var(--in)) 0;
+  border-top:calc(1 * var(--pt)) solid var(--card-line);
+}
+.tl-row:last-child{border-bottom:calc(1 * var(--pt)) solid var(--card-line)}
+.tl-time{font-size:calc(11.2 * var(--pt));font-weight:700;color:var(--teal)}
+.tl-what b{font-family:var(--head);font-size:calc(12.5 * var(--pt));font-weight:700;color:var(--ink);display:block}
+.tl-what span{font-size:calc(9.8 * var(--pt));color:var(--muted)}
+
+/* ---- prompt block ---------------------------------------------- */
+.prompt{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:calc(4.30 * var(--in));
+}
+.prompt .tag{
+  font-size:calc(8.2 * var(--pt));font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--burnt);margin-bottom:calc(.12 * var(--in));
+}
+.prompt .box{
+  background:var(--card);border-left:calc(3 * var(--pt)) solid var(--burnt);
+  padding:calc(.24 * var(--in));
+  font-family:var(--mono);font-size:calc(12 * var(--pt));line-height:1.5;color:var(--ink);
+}
+.tree{
+  position:absolute;left:calc(5.23 * var(--in));top:calc(1.45 * var(--in));
+  width:calc(4.23 * var(--in));
+  background:var(--card);border:calc(1 * var(--pt)) solid var(--card-line);
+  padding:calc(.24 * var(--in));
+  font-family:var(--mono);font-size:calc(8.6 * var(--pt));line-height:1.65;
+  color:var(--ink);white-space:pre;overflow:hidden;
+}
+.tree i{font-style:normal;color:var(--teal);font-weight:700}
+.note{
+  position:absolute;left:var(--margin);top:calc(3.22 * var(--in));
+  width:calc(4.30 * var(--in));
+  font-size:calc(9.8 * var(--pt));line-height:1.55;color:var(--muted);
+}
+
+/* ---- checkpoint ------------------------------------------------- */
+.checkpoint{
+  position:absolute;left:var(--margin);top:calc(4.86 * var(--in));
+  width:var(--content);min-height:calc(.375 * var(--in));
+  border-left:calc(3 * var(--pt)) solid var(--teal);
+  background:var(--card);
+  padding:0 calc(.20 * var(--in)) 0 calc(.165 * var(--in));
+  display:flex;align-items:center;
+}
+.checkpoint b{
+  font-size:calc(8.2 * var(--pt));font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--teal);
+  width:calc(1.035 * var(--in));flex:none;
+}
+.checkpoint span{font-size:calc(10.1 * var(--pt));color:var(--ink)}
+
+/* ---- statement slide -------------------------------------------- */
+.statement{
+  position:absolute;left:var(--margin);top:calc(1.55 * var(--in));
+  width:calc(7.60 * var(--in));
+}
+.statement h2{
+  font-family:var(--head);
+  font-size:calc(32 * var(--pt));font-weight:700;line-height:1.22;color:var(--ink);
+}
+.statement h2 em{font-style:normal;color:var(--teal-deep)}
+.statement p{
+  margin-top:calc(.34 * var(--in));
+  font-size:calc(12.5 * var(--pt));line-height:1.6;color:var(--muted);
+}
+.dark .statement h2{color:#fff}
+.dark .statement h2 em{color:var(--mint)}
+.dark .statement p{color:var(--dark-body)}
+
+
+/* ---- chapter divider -------------------------------------------- */
+.chapnum{
+  position:absolute;left:var(--margin);top:calc(1.30 * var(--in));
+  font-family:var(--head);
+  font-size:calc(92 * var(--pt));font-weight:700;line-height:1;
+  color:var(--mint);
+}
+.chapter{
+  position:absolute;left:var(--margin);top:calc(3.05 * var(--in));
+  width:calc(7.60 * var(--in));
+}
+.chapter h2{
+  font-family:var(--head);
+  font-size:calc(28 * var(--pt));font-weight:700;line-height:1.2;color:#fff;
+}
+.chapter p{
+  margin-top:calc(.20 * var(--in));
+  font-size:calc(11.2 * var(--pt));line-height:1.5;color:var(--dark-body);
+}
+
+/* ---- table ------------------------------------------------------- */
+.tbl{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);border-collapse:collapse;table-layout:fixed;
+}
+.tbl th:first-child,.tbl td:first-child{width:calc(1.75 * var(--in))}
+.tbl th{
+  font-size:calc(8.6 * var(--pt));font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--teal);text-align:left;
+  padding:0 calc(.16 * var(--in)) calc(.13 * var(--in)) 0;
+  border-bottom:calc(1.5 * var(--pt)) solid var(--teal);
+}
+.tbl td{
+  font-size:calc(9.8 * var(--pt));line-height:1.45;color:var(--muted);
+  padding:calc(.145 * var(--in)) calc(.16 * var(--in)) calc(.145 * var(--in)) 0;
+  border-top:calc(1 * var(--pt)) solid var(--card-line);vertical-align:top;
+}
+.tbl td:first-child{font-family:var(--head);font-weight:700;color:var(--ink)}
+.dark .tbl th{color:var(--mint);border-bottom-color:var(--mint)}
+.dark .tbl td{color:var(--dark-body);border-top-color:var(--dark-line)}
+.dark .tbl td:first-child{color:#fff}
+
+/* ---- navigation -------------------------------------------------- */
+.nav{
+  position:fixed;right:1rem;bottom:1rem;
+  display:flex;align-items:center;gap:.5rem;z-index:20;
+  background:rgba(11,47,54,.9);backdrop-filter:blur(8px);
+  padding:.4rem .6rem;border-radius:999px;
+}
+.nav button{
+  width:1.7rem;height:1.7rem;border:0;border-radius:50%;
+  background:rgba(255,255,255,.14);color:#fff;
+  font-size:.85rem;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s ease,transform .15s ease;
+}
+.nav button:hover{background:var(--mint);color:var(--dark-bg)}
+.nav button:active{transform:scale(.94)}
+.nav button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.nav .count{
+  font-size:.72rem;color:#fff;font-variant-numeric:tabular-nums;
+  min-width:3.4rem;text-align:center;
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none !important;animation:none !important}
+}
+
+@page{size:10in 5.625in;margin:0}
+@media print{
+  :root{--stage-w:10in}
+  body{background:#fff}
+  .nav{display:none}
+  .slide{min-height:auto;display:block;page-break-after:always;break-after:page}
+  .stage{width:10in;height:5.625in}
+}
+
+/* ---- the footer mark --------------------------------------------
+   Opposite the page number, on the same baseline, on every slide
+   except the cover. The cover already carries the wordmark at full
+   size and a second mark on the same slide reads as a mistake.
+
+   The string is a variable and it is empty here. build.py writes it
+   from --footer as a one line stylesheet after this one, so a deck
+   prints "acme . B8" and a deck built without the flag prints no
+   mark at all. No brand is named in a theme file: the themes ship to
+   people who are not us.
+
+   There is no hairline above this, and that was a measurement, not a
+   taste. The checkpoint sits at 4.86in with a .375in minimum, so it
+   ends at 5.235in, and the footer baseline is 5.28in. A rule between
+   the two would print fifteen thousandths of an inch off the bottom
+   of the checkpoint and read as an underline glued to it. The two
+   items align to each other instead, which is what makes the page
+   look like it came from somewhere.
+
+   Top is 5.295 rather than the page number's 5.28 because this text
+   is 8pt against its 9.5pt: the offset puts the baselines together,
+   not the tops.
+   ------------------------------------------------------------------ */
+:root{--footmark:""}
+.stage::after{
+  content:var(--footmark);
+  position:absolute;left:var(--margin);top:calc(5.295 * var(--in));
+  font-family:var(--brand);
+  font-size:calc(8 * var(--pt));letter-spacing:.06em;
+  color:var(--muted);
+}
+.stage.dark::after{color:var(--mint)}
+.stage:has(.t-h1)::after{content:none}
+
+/* ---- evidence: chart, stat, source, shortcut ----------------------
+   Four blocks, added 2026-09-12, because a deck can follow every rule
+   above and still carry nothing a room can quote on Monday. The gap
+   was found the same way the layout gap was: by looking at thirty
+   finished pages and asking what a participant would write down.
+
+   None of these is decoration. A chart earns its place only when the
+   shape of the numbers is the argument. If the point survives being
+   said in a sentence, say it in a sentence.
+   ------------------------------------------------------------------ */
+
+/* A horizontal bar chart. Positioned exactly where .tbl is, because
+   it is a table the eye can read without reading: same top, same
+   left, same 1.75in first column, so a chart slide and a table slide
+   in the same block line up when you flick between them.
+
+   Six rows is the ceiling, and that is geometry rather than taste. Six
+   rows at .24in on a .14in gap runs from 1.32 to 3.46, which leaves a
+   quarter inch before .band at 3.7125. A seventh row eats that gap and
+   the band sits on the chart. check.py fails it. */
+.chart{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);
+  display:grid;row-gap:calc(.14 * var(--in));
+  height:calc(2.14 * var(--in));align-content:space-between;
+}
+.ch-row{
+  display:grid;align-items:center;
+  grid-template-columns:calc(1.75 * var(--in)) 1fr calc(.85 * var(--in));
+  column-gap:calc(.16 * var(--in));
+}
+.ch-lab{
+  font-family:var(--head);font-weight:600;
+  font-size:calc(9.8 * var(--pt));line-height:1.25;color:var(--ink);
+}
+/* The track is the card border colour, not a grey: a chart that
+   introduces a fourth neutral makes the deck look assembled from
+   two decks. The fill is a pseudo element so the bar value is one
+   number in the markup and nothing else. */
+.ch-bar{
+  height:calc(.24 * var(--in));background:var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ch-bar::after{
+  content:'';display:block;height:100%;
+  width:calc(var(--v) * 1%);background:var(--teal);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ch-val{
+  font-family:var(--head);font-weight:700;
+  font-size:calc(11.2 * var(--pt));line-height:1;color:var(--teal);
+  text-align:right;white-space:nowrap;
+}
+.dark .ch-lab{color:#fff}
+.dark .ch-bar{background:var(--dark-line)}
+.dark .ch-bar::after{background:var(--mint)}
+.dark .ch-val{color:var(--mint)}
+
+/* The source line. Any number on a slide that came from outside this
+   room carries one, and it sits low and small on purpose: the room
+   reads the number, the sceptic in row three reads the source.
+
+   y 4.55 clears .kicker at 4.31 above it and .strip at 4.8156 below,
+   so a slide can carry a kicker and a source and neither moves. */
+.source{
+  position:absolute;left:var(--margin);top:calc(4.55 * var(--in));
+  width:var(--content);
+  font-size:calc(8 * var(--pt));line-height:1.35;color:var(--muted);
+  font-style:italic;
+}
+.dark .source{color:var(--dark-body)}
+
+/* The number that survives the room. One per card, at the top, set
+   large enough to read from the back and paired with a unit small
+   enough that the numeral is what lands. A card with a .stat in it
+   keeps its heading: the numeral says how much, the heading says of
+   what, and a numeral with no heading is a quiz. */
+.stat{
+  font-family:var(--head);font-weight:700;
+  font-size:calc(30 * var(--pt));line-height:1;
+  letter-spacing:-.02em;color:var(--teal);
+  margin-bottom:calc(.12 * var(--in));
+}
+.stat small{margin-left:calc(.045 * var(--in));font-size:calc(12 * var(--pt));font-weight:600;color:var(--muted);letter-spacing:0}
+.grid.four .stat{font-size:calc(22 * var(--pt))}
+.dark .stat{color:var(--mint)}
+.dark .stat small{color:var(--dark-body)}
+
+/* The shortcut. The one card in a grid that carries the thing they
+   could not have read in the documentation: the workaround, the
+   default worth changing, the ninety seconds that saves the afternoon.
+
+   It is a modifier on .card and not a block of its own, so it inherits
+   every measurement the grid already settled and cannot collide with
+   anything. The rule on the left is 3pt, which is the same
+   weight as the checkpoint's, so the two read as the same gesture. */
+.card.tip{background:var(--tip-bg);border-left:calc(4 * var(--pt)) solid var(--burnt)}
+.card.tip .badge{background:var(--burnt)}
+.dark .card.tip{border-left-color:var(--mint)}
+.dark .card.tip .badge{background:var(--mint);color:var(--dark-bg)}
+
+/* ---- stack: numbered full width rows ----------------------------
+   Three or four rows, each a large numeral against a heading and a
+   body that is allowed to run. It exists because the card grid
+   cannot hold a paragraph: three columns give each card about
+   2.6in of measure, and a limit or a caveat that needs four lines
+   gets truncated into uselessness or pushed off the card.
+
+   Geometry. Starts where .grid starts and is 2.85in tall, so it
+   ends at 4.2375 and clears .kicker at 4.31. Rows are distributed
+   with space-between like .chart, so three rows and four rows both
+   fill the block instead of stacking to the top. Four is the
+   ceiling: a fifth row drops each one under three lines of body and
+   the numeral stops having anything to sit beside.
+
+   The numeral is italic where the heading face has an italic worth
+   having. On a sans heading it simply reads as a slanted numeral,
+   which is why it is set here and not left to the browser. */
+.stack{
+  position:absolute;left:var(--margin);top:calc(1.3875 * var(--in));
+  width:var(--content);
+  display:grid;row-gap:calc(.14 * var(--in));
+  height:calc(3.05 * var(--in));align-content:space-between;
+}
+.st-row{
+  display:grid;grid-template-columns:calc(1.15 * var(--in)) 1fr;
+  column-gap:calc(.22 * var(--in));align-items:center;
+  background:var(--card);border:calc(1 * var(--pt)) solid var(--card-line);
+  padding:calc(.15 * var(--in)) calc(.24 * var(--in));
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.st-num{
+  font-family:var(--head);font-weight:700;font-style:italic;
+  font-size:calc(30 * var(--pt));line-height:1;
+  text-align:center;color:var(--teal);
+}
+.st-what b{
+  font-family:var(--head);font-size:calc(12.5 * var(--pt));font-weight:600;
+  color:var(--ink);display:block;padding-bottom:calc(.055 * var(--in));
+}
+.st-what span{font-size:calc(9.8 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .st-row{background:var(--dark-card);border-color:var(--dark-line)}
+.dark .st-num{color:var(--mint)}
+.dark .st-what b{color:#fff}
+.dark .st-what span{color:var(--dark-body)}
+
+/* ---- icons -------------------------------------------------------
+   Filled geometry, embedded as a mask rather than linked. Three
+   reasons it is a mask and not an <img> or an icon font. A font is an
+   external request and a deck has to open with no network. An <img>
+   carries its own colour, so it would be the one element on the slide
+   that does not follow the theme, and the supplied set is built for a
+   dark ground: four of its five colours miss the 3.0 non text floor
+   on white and all five miss it on a tinted ground. A mask has no
+   colour of its own, so every icon is the theme accent on light and
+   the lift on dark, already cleared by the same gate as everything
+   else.
+
+   Every white detail in the source, the compass needle, the rocket
+   window, the eye pupil, is a hole rather than a white fill. A white
+   pupil is a white dot on a dark slide's card. A hole shows whatever
+   ground it is sitting on, in all eleven themes.
+
+   Sized to the cap height of a card heading so it sits on the same
+   optical line as the text it labels.
+
+   An icon is a label, never an argument. If the slide reads the same
+   with the icons removed, they were decoration and the room read past
+   them. */
+.ico{
+  display:inline-block;vertical-align:-0.12em;
+  width:calc(.30 * var(--in));height:calc(.30 * var(--in));
+  background-color:var(--teal);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.dark .ico{background-color:var(--mint)}
+.ico.lg{width:calc(.52 * var(--in));height:calc(.52 * var(--in))}
+.ico.measure{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M3 19h18v2H3z%22/><path d=%22M5 13h3v6H5zM10.5 4h3v15h-3zM16 9h3v10h-3z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M3 19h18v2H3z%22/><path d=%22M5 13h3v6H5zM10.5 4h3v15h-3zM16 9h3v10h-3z%22/></svg>")}
+.ico.plan{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12 2a10 10 0 100 20 10 10 0 000-20zm4.24 5.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12 2a10 10 0 100 20 10 10 0 000-20zm4.24 5.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z%22/></svg>")}
+.ico.ship{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12 1.8c3.6 2.7 5.6 6.9 5.6 11.4l-1.9 2.9H8.3l-1.9-2.9C6.4 8.7 8.4 4.5 12 1.8zm0 4.9a2.1 2.1 0 100 4.2 2.1 2.1 0 000-4.2z%22/><path d=%22M9.6 17.6h4.8L12 22.2z%22/><path d=%22M6.6 11.9 4 14.6v3.2l2.9-1.8zM17.4 11.9l2.6 2.7v3.2l-2.9-1.8z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12 1.8c3.6 2.7 5.6 6.9 5.6 11.4l-1.9 2.9H8.3l-1.9-2.9C6.4 8.7 8.4 4.5 12 1.8zm0 4.9a2.1 2.1 0 100 4.2 2.1 2.1 0 000-4.2z%22/><path d=%22M9.6 17.6h4.8L12 22.2z%22/><path d=%22M6.6 11.9 4 14.6v3.2l2.9-1.8zM17.4 11.9l2.6 2.7v3.2l-2.9-1.8z%22/></svg>")}
+.ico.monitor{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zm11 3a3 3 0 100-6 3 3 0 000 6z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zm11 3a3 3 0 100-6 3 3 0 000 6z%22/></svg>")}
+.ico.loop{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 2.5v6h-6%22/><path d=%22M21.34 15.57A10 10 0 1 1 20.9 7.3%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 2.5v6h-6%22/><path d=%22M21.34 15.57A10 10 0 1 1 20.9 7.3%22/></g></svg>")}
+.ico.search{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M11 3a8 8 0 105.29 14.03l4.3 4.26 1.4-1.42-4.26-4.29A8 8 0 0011 3zm0 2a6 6 0 110 12 6 6 0 010-12z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M11 3a8 8 0 105.29 14.03l4.3 4.26 1.4-1.42-4.26-4.29A8 8 0 0011 3zm0 2a6 6 0 110 12 6 6 0 010-12z%22/></svg>")}
+.ico.file{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm8 2.5V8h3.5L14 4.5z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm8 2.5V8h3.5L14 4.5z%22/></svg>")}
+.ico.alert{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12.87 3.5a1 1 0 00-1.74 0l-9 15.5A1 1 0 003 20.5h18a1 1 0 00.87-1.5l-9-15.5zM11 9h2v5h-2V9zm0 7h2v2h-2v-2z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path fill-rule=%22evenodd%22 d=%22M12.87 3.5a1 1 0 00-1.74 0l-9 15.5A1 1 0 003 20.5h18a1 1 0 00.87-1.5l-9-15.5zM11 9h2v5h-2V9zm0 7h2v2h-2v-2z%22/></svg>")}
+
+/* ---- the cover wave ----------------------------------------------
+   Two overlapping low angle bands across the foot of the cover,
+   sloping up to the right. Measured off the MedtechWOMEN V10 cover,
+   which grounds its title block this way, and which is most of why
+   that cover looks designed where a bare left aligned one does not.
+
+   Four decisions worth keeping.
+
+   Flat colour, not a gradient. Two hard stopped linear gradients are
+   being used as polygon fills, which is a different thing: there is
+   no ramp, so nothing smears under a projector and nothing is lost
+   to a photocopier. The flat eight keep it for that reason.
+
+   It takes --card behind --card-line, the two palest tokens every
+   theme already defines, so it themes itself and introduces no new
+   colour. No text sits on it, so it carries no contrast risk.
+
+   Cover only. The room sees it once, which is what makes it a
+   signature rather than wallpaper. A band under a working slide is a
+   contrast problem in a nice coat.
+
+   The z-index is load bearing and not decorative. ::after is the last
+   child of .stage, so without it the wave paints on top of the
+   headline, and the cover's own elements have to be lifted above it
+   explicitly. Found by rendering: the first version painted a pale
+   slab over the author line. */
+.stage:has(.t-h1)::after{
+  content:'';display:block;
+  position:absolute;left:0;right:0;bottom:0;
+  height:calc(1.45 * var(--in));z-index:0;
+  background:
+    linear-gradient(5.5deg, var(--card-line) 0 44%, transparent 44%),
+    linear-gradient(2.4deg, var(--card) 0 88%, transparent 88%);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.stage:has(.t-h1) > div,
+.stage:has(.t-h1) > h1{z-index:1}
+.ico.globe{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229.2%22/><path d=%22M2.8 12h18.4%22/><path d=%22M12 2.8a14 14 0 0 1 0 18.4 14 14 0 0 1 0-18.4z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229.2%22/><path d=%22M2.8 12h18.4%22/><path d=%22M12 2.8a14 14 0 0 1 0 18.4 14 14 0 0 1 0-18.4z%22/></g></svg>")}
+.ico.linkedin{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z%22/></svg>")}
+.ico.github{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.2 4.9 18.2 5.2 18.2 5.2c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.2 4.9 18.2 5.2 18.2 5.2c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z%22/></svg>")}
+.ico.portfolio{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.8%22 y=%226.9%22 width=%2218.4%22 height=%2213.3%22 rx=%222%22/><path d=%22M9 6.9V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v1.4%22/><path d=%22M2.8 12.6h18.4%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.8%22 y=%226.9%22 width=%2218.4%22 height=%2213.3%22 rx=%222%22/><path d=%22M9 6.9V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v1.4%22/><path d=%22M2.8 12.6h18.4%22/></g></svg>")}
+.ico.medium{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M13.54 12a6.77 6.77 0 0 1-6.77 6.82A6.77 6.77 0 0 1 0 12a6.77 6.77 0 0 1 6.77-6.82A6.77 6.77 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42s-3.39-2.88-3.39-6.42 1.52-6.42 3.39-6.42S20.96 8.46 20.96 12zM24 12c0 3.17-.53 5.75-1.19 5.75s-1.19-2.58-1.19-5.75.53-5.75 1.19-5.75S24 8.83 24 12z%22/></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d=%22M13.54 12a6.77 6.77 0 0 1-6.77 6.82A6.77 6.77 0 0 1 0 12a6.77 6.77 0 0 1 6.77-6.82A6.77 6.77 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42s-3.39-2.88-3.39-6.42 1.52-6.42 3.39-6.42S20.96 8.46 20.96 12zM24 12c0 3.17-.53 5.75-1.19 5.75s-1.19-2.58-1.19-5.75.53-5.75 1.19-5.75S24 8.83 24 12z%22/></svg>")}
+
+/* ---- the social row ----------------------------------------------
+   A row of icon links at the foot of the close slide. It replaces the
+   footer mark on that slide rather than sitting beside it: the close
+   is the contact slide, so the foot belongs to the links, and two
+   marks on one baseline read as a collision.
+
+   It sits at 5.13, which clears the band's floor at 4.725 and stays
+   above the footer baseline at 5.295. The page number is at x 9.075
+   and this row is left aligned, so they never meet.
+
+   The links are real hrefs. They survive the PDF export, which is the
+   point: the deck is handed over as a file more often than it is
+   presented, and a printed URL nobody can click is a URL nobody
+   visits. */
+.social{
+  position:absolute;left:var(--margin);top:calc(5.13 * var(--in));
+  display:flex;align-items:center;gap:calc(.20 * var(--in));
+}
+.social a{display:inline-flex;text-decoration:none;line-height:0}
+.social .ico{width:calc(.245 * var(--in));height:calc(.245 * var(--in))}
+.stage:has(.social)::after{content:none}
+
+/* ==== pictures =====================================================
+   The kit had none. Fourteen layouts and not one of them produced an
+   image, which meant a deck teaching software could not show the
+   software. Every block below sits in the same band the table and the
+   chart use, 1.32 down to about 4.17, so a kicker at 4.31 and a source
+   at 4.55 still fit under it.
+
+   Images are inlined as data URIs by build.py. Write a relative path
+   and it is embedded at build time; the deck stays one file.
+   ================================================================== */
+
+/* figure: an image with a caption. The caption is not optional
+   furniture. A screenshot with no caption makes the room hunt for
+   what they are supposed to be looking at. */
+.figure{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);height:calc(2.85 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.15 * var(--in));
+}
+.figure img{
+  width:100%;flex:1 1 auto;min-height:0;object-fit:contain;object-position:center;
+}
+.fig-cap{
+  flex:0 0 auto;font-size:calc(9.8 * var(--pt));line-height:1.35;color:var(--muted);
+}
+.dark .figure img{border-color:var(--dark-line);background:var(--dark-card)}
+.dark .fig-cap{color:var(--dark-body)}
+
+/* shot: a screenshot with numbered pins on it. The pin is the whole
+   point. "Look at the top right" is a sentence the room has to decode
+   while the slide is already moving; a numbered dot on the pixel is
+   not. Position each pin with --x and --y as percentages of the
+   image box. The ring around it is the page colour, so a pin stays
+   readable on a dark screenshot and on a light one. */
+.shot{
+  position:absolute;top:calc(1.32 * var(--in));
+  height:calc(2.85 * var(--in));
+  aspect-ratio:var(--ar, 1.78);
+  left:50%;transform:translateX(-50%);
+}
+.shot img{
+  width:100%;height:100%;display:block;object-fit:fill;
+  border:calc(1 * var(--pt)) solid var(--card-line);
+}
+.pin{
+  position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);
+  transform:translate(-50%,-50%);
+  width:calc(.30 * var(--in));height:calc(.30 * var(--in));border-radius:50%;
+  background:var(--teal);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-size:calc(10 * var(--pt));font-weight:700;line-height:1;
+  box-shadow:0 0 0 calc(2 * var(--pt)) var(--page);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+/* A smaller pin, for a dense screenshot. The default .30in is right on
+   a diagram or a sparse UI and too large on a list of rows, where it
+   covers the text it is pointing at. Found by pinning a real retrieval
+   result: the pin sat on the metadata it was drawing attention to. */
+.pin.sm{width:calc(.21 * var(--in));height:calc(.21 * var(--in));
+  font-size:calc(7.5 * var(--pt))}
+.dark .shot img{border-color:var(--dark-line);background:var(--dark-card)}
+.dark .pin{box-shadow:0 0 0 calc(2 * var(--pt)) var(--dark-card)}
+
+/* split: the picture on one side, the argument on the other. Use wide
+   when the image is a wide screenshot and the text is short. */
+.split{
+  position:absolute;left:var(--margin);top:calc(1.32 * var(--in));
+  width:var(--content);height:calc(2.85 * var(--in));
+  display:grid;grid-template-columns:1fr 1fr;
+  column-gap:calc(.34 * var(--in));align-items:center;
+}
+.split.wide{grid-template-columns:1.4fr 1fr}
+.split img{
+  width:100%;height:auto;max-height:100%;object-fit:contain;
+  border:calc(1 * var(--pt)) solid var(--card-line);
+}
+.sl-text b{
+  display:block;font-family:var(--head);
+  font-size:calc(14 * var(--pt));font-weight:600;line-height:1.2;color:var(--ink);
+  padding-bottom:calc(.12 * var(--in));
+}
+.sl-text span{font-size:calc(10.5 * var(--pt));line-height:1.5;color:var(--muted)}
+.dark .sl-text b{color:#fff}
+.dark .sl-text span{color:var(--dark-body)}
+
+/* full: a full bleed image with one line over it.
+   The scrim is mandatory and it is not a taste decision. Every other
+   colour pair in this kit was checked against a known background;
+   this is the one element whose background is a photograph nobody has
+   seen yet, so contrast cannot be computed. The gradient guarantees a
+   dark field under the text regardless of what the picture is doing.
+   Never remove it, and never put body copy outside the left column
+   where it is darkest. */
+.full{position:absolute;inset:0;overflow:hidden}
+.full img{width:100%;height:100%;object-fit:cover;display:block}
+.full::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(95deg, rgba(8,10,12,.88) 0%, rgba(8,10,12,.74) 42%,
+                                     rgba(8,10,12,.20) 100%);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fu-say{
+  position:absolute;left:var(--margin);top:calc(1.75 * var(--in));
+  width:calc(5.3 * var(--in));z-index:2;
+}
+.fu-say h2{
+  font-family:var(--head);font-size:calc(29 * var(--pt));font-weight:700;
+  line-height:1.16;letter-spacing:-.012em;color:#fff;
+}
+.fu-say p{
+  font-size:calc(11.5 * var(--pt));line-height:1.5;color:rgba(255,255,255,.92);
+  padding-top:calc(.22 * var(--in));
+}
+
+/* ==== diagrams =====================================================
+   A diagram earns its place when the relationship between the parts
+   is the lesson. If the parts are simply a list, a list is honest and
+   a diagram is decoration with arrows on it.
+   ================================================================== */
+
+/* flow: stages in order, with the arrow between them doing the work.
+   Reach for it wherever a slide currently says "first, then, then". */
+.flow{
+  position:absolute;left:var(--margin);top:calc(1.60 * var(--in));
+  width:var(--content);height:calc(2.10 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.54 * var(--in));align-items:stretch;
+}
+.fl-step{
+  position:relative;background:var(--card);
+  border:calc(1 * var(--pt)) solid var(--card-line);
+  padding:calc(.22 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.06 * var(--in));
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fl-step + .fl-step::before{
+  content:'';position:absolute;left:calc(-.40 * var(--in));top:50%;
+  width:calc(.22 * var(--in));height:calc(.22 * var(--in));
+  transform:translateY(-50%) rotate(45deg);
+  border-top:calc(2.2 * var(--pt)) solid var(--teal);
+  border-right:calc(2.2 * var(--pt)) solid var(--teal);
+}
+.fl-step b{
+  font-family:var(--head);font-size:calc(12 * var(--pt));font-weight:600;
+  color:var(--ink);display:block;
+}
+.fl-step span{font-size:calc(9.4 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .fl-step{background:var(--dark-card);border-color:var(--dark-line)}
+.dark .fl-step b{color:#fff}
+.dark .fl-step span{color:var(--dark-body)}
+.dark .fl-step + .fl-step::before{border-color:var(--mint)}
+
+/* spine: one vertical line, with parallel points hanging off it.
+   For a sequence whose steps are not equal in weight, or a timeline
+   where what matters is that everything hangs off one thread. */
+.spine{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.70 * var(--in));
+  padding-left:calc(1.00 * var(--in));
+  display:grid;row-gap:calc(.10 * var(--in));align-content:space-between;
+}
+.spine::before{
+  content:'';position:absolute;left:calc(.30 * var(--in));top:calc(.14 * var(--in));
+  bottom:calc(.14 * var(--in));width:calc(2.5 * var(--pt));background:var(--teal);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.spn-node{position:relative}
+.spn-node::before{
+  content:'';position:absolute;left:calc(-.62 * var(--in));top:calc(.17 * var(--in));
+  width:calc(.50 * var(--in));height:calc(2 * var(--pt));background:var(--teal);
+}
+.spn-node::after{
+  content:'';position:absolute;left:calc(-.79 * var(--in));top:calc(.08 * var(--in));
+  width:calc(.20 * var(--in));height:calc(.20 * var(--in));border-radius:50%;
+  background:var(--page);border:calc(2.5 * var(--pt)) solid var(--teal);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.spn-node b{
+  display:block;font-family:var(--head);font-size:calc(12 * var(--pt));
+  font-weight:600;color:var(--ink);
+}
+.spn-node span{font-size:calc(9.4 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .spine::before,.dark .spn-node::before{background:var(--mint)}
+.dark .spn-node::after{background:var(--dark-bg);border-color:var(--mint)}
+.dark .spn-node b{color:#fff}
+.dark .spn-node span{color:var(--dark-body)}
+
+/* fishbone: causes feeding one effect. The only diagram here that is
+   genuinely a diagram rather than a arranged list, and the only one
+   worth the space when a room is arguing about why something broke.
+   Ribs take --x, a percentage across the spine. */
+.fishbone{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+}
+.fishbone::before{
+  content:'';position:absolute;left:0;right:calc(1.70 * var(--in));top:50%;
+  height:calc(2.5 * var(--pt));background:var(--teal);transform:translateY(-50%);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-head{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:calc(1.62 * var(--in));min-height:calc(.70 * var(--in));
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:var(--teal);color:#fff;padding:calc(.12 * var(--in));
+  font-family:var(--head);font-size:calc(10.5 * var(--pt));font-weight:600;line-height:1.25;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-rib{position:absolute;left:calc(var(--x) * 1%);width:calc(1.85 * var(--in))}
+.fb-rib b{
+  display:block;font-family:var(--head);font-size:calc(10 * var(--pt));
+  font-weight:600;color:var(--ink);line-height:1.2;
+}
+.fb-rib span{display:block;font-size:calc(8.6 * var(--pt));line-height:1.32;color:var(--muted)}
+.fb-bone{
+  position:absolute;left:0;
+  width:calc(.56 * var(--in));height:calc(1.8 * var(--pt));
+  background:var(--teal);transform-origin:left center;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fb-rib.up{bottom:calc(50% + .30 * var(--in))}
+.fb-rib.up .fb-bone{bottom:0;transform:rotate(34deg)}
+.fb-rib.down{top:calc(50% + .30 * var(--in))}
+.fb-rib.down .fb-bone{top:0;transform:rotate(-34deg)}
+.dark .fishbone::before,.dark .fb-bone{background:var(--mint)}
+.dark .fb-rib b{color:#fff}
+.dark .fb-rib span{color:var(--dark-body)}
+.dark .fb-head{background:var(--mint);color:var(--dark-bg)}
+
+/* funnel: stages that lose volume. Bars are centred and shrink, which
+   reads as a funnel without a single clip-path, because clip-path is
+   the first thing a PDF renderer gets wrong. --w is the width as a
+   percentage of the block. */
+.funnel{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.10 * var(--in));
+}
+.fn-row{
+  display:grid;grid-template-columns:1fr calc(3.30 * var(--in));
+  align-items:center;column-gap:calc(.30 * var(--in));
+}
+.fn-bar{
+  width:calc(var(--w) * 1%);margin:0 auto;height:calc(.46 * var(--in));
+  background:var(--teal);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-size:calc(12.5 * var(--pt));font-weight:700;line-height:1;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.fn-row b{
+  display:block;font-family:var(--head);font-size:calc(11 * var(--pt));
+  font-weight:600;color:var(--ink);
+}
+.fn-row span{display:block;font-size:calc(9 * var(--pt));line-height:1.35;color:var(--muted)}
+.dark .fn-bar{background:var(--mint);color:var(--dark-bg)}
+.dark .fn-row b{color:#fff}
+.dark .fn-row span{color:var(--dark-body)}
+
+/* venn: two or three sets that overlap. The fill is the accent at low
+   alpha rather than a blend mode, so the overlap darkens by simple
+   arithmetic and prints the same way it screens. */
+.venn{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.55 * var(--in));
+  display:flex;align-items:center;justify-content:center;
+}
+.vn-set{
+  width:calc(1.78 * var(--in));height:calc(1.78 * var(--in));border-radius:50%;
+  border:calc(2 * var(--pt)) solid var(--teal);
+  background:color-mix(in srgb, var(--teal) 15%, transparent);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:calc(.20 * var(--in));
+  font-family:var(--head);font-size:calc(10 * var(--pt));font-weight:600;
+  line-height:1.25;color:var(--ink);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.vn-set + .vn-set{margin-left:calc(-.52 * var(--in))}
+.vn-note{
+  position:absolute;left:0;right:0;bottom:0;text-align:center;
+  font-size:calc(9.4 * var(--pt));color:var(--muted);
+}
+.dark .vn-set{border-color:var(--mint);color:#fff;
+  background:color-mix(in srgb, var(--mint) 18%, transparent)}
+.dark .vn-note{color:var(--dark-body)}
+
+/* matrix: two axes, four quadrants, and one of them is the answer.
+   Mark it with hi. The axis labels are separate elements because they
+   sit outside the grid, which is the only way they do not steal a
+   quadrant's width. */
+.matrix{
+  position:absolute;left:calc(1.20 * var(--in));top:calc(1.42 * var(--in));
+  width:calc(7.55 * var(--in));height:calc(2.48 * var(--in));
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:calc(2 * var(--pt));background:var(--card-line);
+  border:calc(2 * var(--pt)) solid var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.mx-q{
+  background:var(--card);padding:calc(.20 * var(--in));
+  display:flex;flex-direction:column;gap:calc(.05 * var(--in));
+}
+.mx-q.hi{background:var(--tip-bg)}
+.mx-q b{font-family:var(--head);font-size:calc(11.5 * var(--pt));font-weight:600;color:var(--ink)}
+.mx-q span{font-size:calc(9 * var(--pt));line-height:1.35;color:var(--muted)}
+.mx-x{
+  position:absolute;left:calc(1.20 * var(--in));top:calc(4.02 * var(--in));
+  width:calc(7.55 * var(--in));text-align:center;
+  font-size:calc(8.6 * var(--pt));letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--teal);
+}
+.mx-y{
+  position:absolute;left:calc(.62 * var(--in));top:calc(3.90 * var(--in));
+  transform:rotate(-90deg);transform-origin:left center;white-space:nowrap;
+  font-size:calc(8.6 * var(--pt));letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--teal);
+}
+.dark .matrix{background:var(--dark-line);border-color:var(--dark-line)}
+.dark .mx-q{background:var(--dark-card)}
+.dark .mx-q.hi{background:var(--dark-bg)}
+.dark .mx-q b{color:#fff}
+.dark .mx-q span{color:var(--dark-body)}
+.dark .mx-x,.dark .mx-y{color:var(--mint)}
+
+/* swimlane: who does what, when. Set --cols to the number of phases.
+   Mark the cells that matter with on; a lane of uniformly filled
+   cells is a table wearing a costume. */
+.swim{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.70 * var(--in));
+  display:grid;
+  grid-template-columns:calc(1.25 * var(--in)) repeat(var(--cols,3), 1fr);
+  gap:calc(1.5 * var(--pt));
+  background:var(--card-line);border:calc(1.5 * var(--pt)) solid var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.sw-h{
+  background:var(--teal);color:#fff;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--head);font-size:calc(8.8 * var(--pt));font-weight:700;
+  letter-spacing:.10em;text-transform:uppercase;padding:calc(.10 * var(--in));
+}
+.sw-lane{
+  background:var(--card);display:flex;align-items:center;
+  padding:calc(.12 * var(--in));
+  font-family:var(--head);font-size:calc(9.6 * var(--pt));font-weight:600;color:var(--ink);
+}
+.sw-cell{
+  background:var(--page);padding:calc(.14 * var(--in));
+  font-size:calc(8.8 * var(--pt));line-height:1.35;color:var(--muted);
+  display:flex;align-items:center;
+}
+.sw-cell.on{background:var(--tip-bg);color:var(--ink)}
+.dark .swim{background:var(--dark-line);border-color:var(--dark-line)}
+.dark .sw-h{background:var(--mint);color:var(--dark-bg)}
+.dark .sw-lane{background:var(--dark-card);color:#fff}
+.dark .sw-cell{background:var(--dark-bg);color:var(--dark-body)}
+.dark .sw-cell.on{background:var(--dark-card);color:#fff}
+
+/* layers: a stack where the order is the argument. An architecture,
+   a maturity ladder, anything read bottom up or top down. */
+.layers{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.60 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.10 * var(--in));
+}
+.ly-row{
+  display:grid;grid-template-columns:calc(1.75 * var(--in)) 1fr;
+  align-items:center;column-gap:calc(.24 * var(--in));
+  background:var(--card);border-left:calc(4 * var(--pt)) solid var(--teal);
+  padding:calc(.12 * var(--in)) calc(.24 * var(--in));
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.ly-row.hi{background:var(--tip-bg)}
+.ly-row b{font-family:var(--head);font-size:calc(11 * var(--pt));font-weight:600;color:var(--ink)}
+.ly-row span{font-size:calc(9.3 * var(--pt));line-height:1.4;color:var(--muted)}
+.dark .ly-row{background:var(--dark-card);border-left-color:var(--mint)}
+.dark .ly-row.hi{background:var(--dark-bg)}
+.dark .ly-row b{color:#fff}
+.dark .ly-row span{color:var(--dark-body)}
+
+/* ==== charts ========================================================
+   The kit had one: six horizontal bars, hand typed. That is the chart
+   you reach for when the shape of a ranking is the argument, and it is
+   the wrong instrument for four of the five exhibits a consulting deck
+   actually runs on. These are those four, plus the ring.
+
+   All of them sit in the same band the table uses, 1.32 to about 4.17,
+   so a kicker at 4.31 and a source at 4.55 still fit under. All of them
+   carry the source rule already in check.py: a figure from outside the
+   room names where it came from.
+
+   Numbers are authored, not computed. That is deliberate. A chart in a
+   deck has four to six values in it and they come off a line in
+   EVIDENCE.md, so a data pipeline here would be a way to get numbers on
+   a slide without anybody reading them.
+   ================================================================== */
+
+/* waterfall: the bridge. What the number was, what moved it, what it
+   became. The most characteristic consulting exhibit there is, and the
+   only one that shows a total and its causes in the same picture.
+   --base and --h go on the COLUMN, not on the bar. The value label is
+   a sibling of the bar, so a custom property set on the bar is
+   invisible to it and the label pins itself to the floor. That is
+   exactly what the first build did: every plus and minus sat in a row
+   along the bottom and the two totals had no label at all. Custom
+   properties inherit down, not sideways.
+
+   --base is the percentage up from the floor where the bar starts and
+   --h is its height. Mark the opening and closing columns with tot,
+   and a decrease with down. */
+.waterfall{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.45 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.22 * var(--in));align-items:end;
+}
+.wf-col{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end}
+.wf-bar{
+  position:absolute;left:0;right:0;
+  bottom:calc(var(--base,0) * 1%);height:calc(var(--h) * 1%);
+  background:var(--teal);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.wf-col.tot .wf-bar{background:var(--teal-deep)}
+.wf-col.down .wf-bar{background:var(--card-line)}
+.wf-val{
+  position:absolute;left:0;right:0;
+  bottom:calc(var(--base,0) * 1% + var(--h) * 1% + .06 * var(--in));
+  text-align:center;font-family:var(--head);font-weight:700;
+  font-size:calc(10 * var(--pt));color:var(--ink);
+}
+.wf-lab{
+  position:absolute;left:0;right:0;top:calc(100% + .08 * var(--in));
+  text-align:center;font-size:calc(8.6 * var(--pt));line-height:1.25;color:var(--muted);
+}
+.dark .wf-col.down .wf-bar{background:var(--dark-line)}
+.dark .wf-bar{background:var(--mint)}
+.dark .wf-val{color:#fff}
+.dark .wf-lab{color:var(--dark-body)}
+
+/* line: a measure over time. The one chart where the direction is the
+   whole point, which the bar chart cannot show at all.
+   Authored as an SVG polyline on a 100 x 40 viewBox, so the points are
+   readable numbers in the markup rather than pixels. Stroke takes the
+   accent from CSS, so it themes like everything else. */
+.linechart{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.35 * var(--in));
+}
+.linechart svg{width:100%;height:100%;display:block;overflow:visible}
+.ln-grid{stroke:var(--card-line);stroke-width:.25;fill:none}
+.ln-path{stroke-width:0.9;stroke:var(--teal);stroke-width:1.1;fill:none;
+  stroke-linejoin:round;stroke-linecap:round}
+.ln-path.b{stroke:var(--card-line);stroke-dasharray:2 1.6}
+.ln-dot{fill:var(--teal)}
+.ln-cap{font-size:2.6px;fill:var(--ink);font-weight:700;font-family:var(--head)}
+.ln-ax{font-size:2.3px;fill:var(--muted);font-family:var(--body)}
+.dark .ln-grid{stroke:var(--dark-line)}
+.dark .ln-path{stroke-width:0.9;stroke:var(--mint)}
+.dark .ln-path.b{stroke:var(--dark-line)}
+.dark .ln-dot{fill:var(--mint)}
+.dark .ln-cap{fill:#fff}
+.dark .ln-ax{fill:var(--dark-body)}
+
+/* stackbar: composition, and how it changes. Three or four segments a
+   bar, four or five bars. Each segment takes --w as a percentage of
+   its bar. Past four segments nobody can read the legend against the
+   stack and a table is the honest answer. */
+.stackbar{
+  position:absolute;left:var(--margin);top:calc(1.42 * var(--in));
+  width:var(--content);height:calc(2.55 * var(--in));
+  display:grid;align-content:space-between;row-gap:calc(.12 * var(--in));
+}
+.sb-row{display:grid;grid-template-columns:calc(1.35 * var(--in)) 1fr;
+  align-items:center;column-gap:calc(.20 * var(--in))}
+.sb-lab{font-family:var(--head);font-size:calc(9.8 * var(--pt));
+  font-weight:600;color:var(--ink);text-align:right}
+.sb-bar{display:flex;height:calc(.40 * var(--in));overflow:hidden}
+.sb-seg{
+  display:flex;align-items:center;justify-content:center;
+  width:calc(var(--w) * 1%);
+  font-family:var(--head);font-size:calc(8.8 * var(--pt));font-weight:700;
+  color:#fff;background:var(--teal-deep);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+}
+.sb-seg.s2{background:var(--teal)}
+.sb-seg.s3{background:color-mix(in srgb, var(--teal) 46%, var(--page));color:var(--ink)}
+.sb-seg.s4{background:var(--card-line);color:var(--ink)}
+.sb-key{
+  position:absolute;left:calc(1.55 * var(--in));top:calc(4.07 * var(--in));
+  display:flex;gap:calc(.34 * var(--in));
+  font-size:calc(8.6 * var(--pt));color:var(--muted);align-items:center;
+}
+.sb-key i{display:inline-block;width:calc(.16 * var(--in));height:calc(.16 * var(--in));
+  margin-right:calc(.07 * var(--in));vertical-align:-.02em;background:var(--teal-deep);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.sb-key i.s2{background:var(--teal)}
+.sb-key i.s3{background:color-mix(in srgb, var(--teal) 46%, var(--page))}
+.sb-key i.s4{background:var(--card-line)}
+.dark .sb-lab{color:#fff}
+.dark .sb-key{color:var(--dark-body)}
+.dark .sb-seg.s3{background:color-mix(in srgb, var(--mint) 55%, var(--dark-bg));color:#fff}
+.dark .sb-seg.s4{background:var(--dark-line);color:#fff}
+.dark .sb-seg{background:var(--mint);color:var(--dark-bg)}
+.dark .sb-seg.s2{background:color-mix(in srgb, var(--mint) 78%, var(--dark-bg))}
+
+/* multiples: the same small chart repeated, one per thing, so the
+   comparison is between panels rather than between colours. Six is the
+   ceiling and four is better. Each panel's bar takes --v. */
+.multiples{
+  position:absolute;left:var(--margin);top:calc(1.45 * var(--in));
+  width:var(--content);height:calc(2.45 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.26 * var(--in));
+}
+.mu-cell{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  border-bottom:calc(1.5 * var(--pt)) solid var(--card-line);padding-bottom:calc(.10 * var(--in));
+}
+.mu-head{
+  font-family:var(--head);font-size:calc(9.4 * var(--pt));font-weight:600;
+  color:var(--ink);padding-bottom:calc(.08 * var(--in));
+}
+.mu-num{
+  font-family:var(--head);font-size:calc(19 * var(--pt));font-weight:700;
+  line-height:1;color:var(--teal);padding-bottom:calc(.08 * var(--in));
+}
+.mu-bar{height:calc(.22 * var(--in));background:var(--card-line);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.mu-bar::after{content:'';display:block;height:100%;width:calc(var(--v) * 1%);
+  background:var(--teal);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.mu-foot{font-size:calc(8.4 * var(--pt));line-height:1.3;color:var(--muted);
+  padding-top:calc(.08 * var(--in))}
+.dark .mu-cell{border-bottom-color:var(--dark-line)}
+.dark .mu-head{color:#fff}
+.dark .mu-num{color:var(--mint)}
+.dark .mu-bar{background:var(--dark-line)}
+.dark .mu-bar::after{background:var(--mint)}
+.dark .mu-foot{color:var(--dark-body)}
+
+/* ring: one number, as a proportion of a whole. The only chart here
+   that shows a single value, and the only honest use of a circle in a
+   deck: a pie with five slices is a table that lost its labels.
+   --p is the percentage. The dasharray is on a circumference of 100 so
+   the number in the markup is the number on the slide. */
+.rings{
+  position:absolute;left:var(--margin);top:calc(1.48 * var(--in));
+  width:var(--content);height:calc(2.35 * var(--in));
+  display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  column-gap:calc(.30 * var(--in));align-items:start;
+}
+.rg{display:flex;flex-direction:column;align-items:center;text-align:center}
+.rg svg{width:calc(1.45 * var(--in));height:calc(1.45 * var(--in));display:block}
+.rg-track{fill:none;stroke:var(--card-line);stroke-width:4.2}
+.rg-arc{fill:none;stroke:var(--teal);stroke-width:4.2;stroke-linecap:butt;
+  transform:rotate(-90deg);transform-origin:center}
+.rg-num{font-family:var(--head);font-size:9px;font-weight:700;fill:var(--ink);
+  text-anchor:middle;dominant-baseline:central}
+.rg b{display:block;font-family:var(--head);font-size:calc(10.5 * var(--pt));
+  font-weight:600;color:var(--ink);padding-top:calc(.10 * var(--in))}
+.rg span{display:block;font-size:calc(8.8 * var(--pt));line-height:1.35;color:var(--muted)}
+.dark .rg-track{stroke:var(--dark-line)}
+.dark .rg-arc{stroke:var(--mint)}
+.dark .rg-num,.dark .rg b{fill:#fff;color:#fff}
+.dark .rg span{color:var(--dark-body)}
+
+/* 30 more icons, stroke geometry. The brand marks and the
+   heartbeat five are filled; these are stroked, which is easier to
+   keep correct at 24px and is what Lucide and Feather do. */
+.ico.user{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%228%22 r=%224%22/><path d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%228%22 r=%224%22/><path d=%22M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7%22/></g></svg>")}
+.ico.users{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%229.5%22 cy=%228.5%22 r=%223.5%22/><path d=%22M2.5 20.5c0-3.9 3.1-6 7-6s7 2.1 7 6%22/><path d=%22M17 5.2a3.5 3.5 0 0 1 0 6.6%22/><path d=%22M18.5 14.8c2 .8 3 2.6 3 5.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%229.5%22 cy=%228.5%22 r=%223.5%22/><path d=%22M2.5 20.5c0-3.9 3.1-6 7-6s7 2.1 7 6%22/><path d=%22M17 5.2a3.5 3.5 0 0 1 0 6.6%22/><path d=%22M18.5 14.8c2 .8 3 2.6 3 5.2%22/></g></svg>")}
+.ico.check{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M20 6.5 9.5 17.5 4.5 12.5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M20 6.5 9.5 17.5 4.5 12.5%22/></g></svg>")}
+.ico.cross{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M6 6l12 12M18 6 6 18%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M6 6l12 12M18 6 6 18%22/></g></svg>")}
+.ico.clock{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M12 6.6V12l3.6 2.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M12 6.6V12l3.6 2.2%22/></g></svg>")}
+.ico.calendar{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%223.2%22 y=%225%22 width=%2217.6%22 height=%2216%22 rx=%222%22/><path d=%22M3.2 10h17.6M8 3v4M16 3v4%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%223.2%22 y=%225%22 width=%2217.6%22 height=%2216%22 rx=%222%22/><path d=%22M3.2 10h17.6M8 3v4M16 3v4%22/></g></svg>")}
+.ico.target{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><circle cx=%2212%22 cy=%2212%22 r=%225%22/><circle cx=%2212%22 cy=%2212%22 r=%221.3%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><circle cx=%2212%22 cy=%2212%22 r=%225%22/><circle cx=%2212%22 cy=%2212%22 r=%221.3%22/></g></svg>")}
+.ico.flag{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M5 21V4M5 5h11l-2 3.5L16 12H5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M5 21V4M5 5h11l-2 3.5L16 12H5%22/></g></svg>")}
+.ico.filter{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3.5 5h17l-6.6 7.8V20l-3.8-2.2v-5z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3.5 5h17l-6.6 7.8V20l-3.8-2.2v-5z%22/></g></svg>")}
+.ico.database{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><ellipse cx=%2212%22 cy=%226%22 rx=%228%22 ry=%223.2%22/><path d=%22M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6%22/><path d=%22M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><ellipse cx=%2212%22 cy=%226%22 rx=%228%22 ry=%223.2%22/><path d=%22M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6%22/><path d=%22M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2%22/></g></svg>")}
+.ico.trendup{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 17.5 9.5 11l4 4L21 7.5%22/><path d=%22M15.5 7.5H21V13%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 17.5 9.5 11l4 4L21 7.5%22/><path d=%22M15.5 7.5H21V13%22/></g></svg>")}
+.ico.trenddown{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 7.5 9.5 14l4-4L21 17.5%22/><path d=%22M15.5 17.5H21V12%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 7.5 9.5 14l4-4L21 17.5%22/><path d=%22M15.5 17.5H21V12%22/></g></svg>")}
+.ico.code{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M8.5 17 3.5 12l5-5M15.5 7l5 5-5 5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M8.5 17 3.5 12l5-5M15.5 7l5 5-5 5%22/></g></svg>")}
+.ico.terminal{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%224%22 width=%2218.8%22 height=%2216%22 rx=%222%22/><path d=%22M6.5 9.5 9.5 12l-3 2.5M12.5 15h5%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%224%22 width=%2218.8%22 height=%2216%22 rx=%222%22/><path d=%22M6.5 9.5 9.5 12l-3 2.5M12.5 15h5%22/></g></svg>")}
+.ico.cloud{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M7 19h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.7 3.7 0 0 0 7 19z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M7 19h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.7 3.7 0 0 0 7 19z%22/></g></svg>")}
+.ico.lock{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%224.5%22 y=%2210.5%22 width=%2215%22 height=%2210%22 rx=%222%22/><path d=%22M8 10.5V7.5a4 4 0 0 1 8 0v3%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%224.5%22 y=%2210.5%22 width=%2215%22 height=%2210%22 rx=%222%22/><path d=%22M8 10.5V7.5a4 4 0 0 1 8 0v3%22/></g></svg>")}
+.ico.key{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%227.5%22 cy=%2214.5%22 r=%224%22/><path d=%22M10.4 11.6 20 2m-3 3 2.5 2.5M14.5 7.5 17 10%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%227.5%22 cy=%2214.5%22 r=%224%22/><path d=%22M10.4 11.6 20 2m-3 3 2.5 2.5M14.5 7.5 17 10%22/></g></svg>")}
+.ico.link{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.5 14.5 14.5 9.5%22/><path d=%22M11 6.5 13 4.5a4.2 4.2 0 0 1 6 6l-2 2%22/><path d=%22M13 17.5l-2 2a4.2 4.2 0 0 1-6-6l2-2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.5 14.5 14.5 9.5%22/><path d=%22M11 6.5 13 4.5a4.2 4.2 0 0 1 6 6l-2 2%22/><path d=%22M13 17.5l-2 2a4.2 4.2 0 0 1-6-6l2-2%22/></g></svg>")}
+.ico.mail{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%225%22 width=%2218.8%22 height=%2214%22 rx=%222%22/><path d=%22m3.4 6.6 8.6 6.2 8.6-6.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222.6%22 y=%225%22 width=%2218.8%22 height=%2214%22 rx=%222%22/><path d=%22m3.4 6.6 8.6 6.2 8.6-6.2%22/></g></svg>")}
+.ico.chat{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 12.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3.6-.7L3.5 21.5l1.7-5A8 8 0 0 1 4.5 12a8 8 0 0 1 8-8 8 8 0 0 1 8.5 8.5z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M21 12.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3.6-.7L3.5 21.5l1.7-5A8 8 0 0 1 4.5 12a8 8 0 0 1 8-8 8 8 0 0 1 8.5 8.5z%22/></g></svg>")}
+.ico.book{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 4.5h6a3 3 0 0 1 3 3V20a2.5 2.5 0 0 0-2.5-2H4z%22/><path d=%22M20 4.5h-6a3 3 0 0 0-3 3V20a2.5 2.5 0 0 1 2.5-2H20z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 4.5h6a3 3 0 0 1 3 3V20a2.5 2.5 0 0 0-2.5-2H4z%22/><path d=%22M20 4.5h-6a3 3 0 0 0-3 3V20a2.5 2.5 0 0 1 2.5-2H20z%22/></g></svg>")}
+.ico.clipboard{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%225%22 y=%224.5%22 width=%2214%22 height=%2216.5%22 rx=%222%22/><rect x=%229%22 y=%222.6%22 width=%226%22 height=%223.8%22 rx=%221.2%22/><path d=%22M8.8 11.5h6.4M8.8 15.5h4.4%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%225%22 y=%224.5%22 width=%2214%22 height=%2216.5%22 rx=%222%22/><rect x=%229%22 y=%222.6%22 width=%226%22 height=%223.8%22 rx=%221.2%22/><path d=%22M8.8 11.5h6.4M8.8 15.5h4.4%22/></g></svg>")}
+.ico.folder{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 6.5a2 2 0 0 1 2-2h4l2 2.6h8a2 2 0 0 1 2 2v9.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3 6.5a2 2 0 0 1 2-2h4l2 2.6h8a2 2 0 0 1 2 2v9.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22/></g></svg>")}
+.ico.shield{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 2.8 20 6v6c0 4.6-3.3 8-8 9.4C8 20 4.7 16.6 4.7 12V6z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 2.8 20 6v6c0 4.6-3.3 8-8 9.4C8 20 4.7 16.6 4.7 12V6z%22/></g></svg>")}
+.ico.bug{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%228%22 y=%227.5%22 width=%228%22 height=%2211%22 rx=%224%22/><path d=%22M8 12H3.5M20.5 12H16M8.8 8.2 6 5.4M15.2 8.2 18 5.4M8.8 17.8 6 20.6M15.2 17.8 18 20.6%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%228%22 y=%227.5%22 width=%228%22 height=%2211%22 rx=%224%22/><path d=%22M8 12H3.5M20.5 12H16M8.8 8.2 6 5.4M15.2 8.2 18 5.4M8.8 17.8 6 20.6M15.2 17.8 18 20.6%22/></g></svg>")}
+.ico.help{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.8%22/><path d=%22M12 17.2h.01%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.8%22/><path d=%22M12 17.2h.01%22/></g></svg>")}
+.ico.coin{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M14.6 9.2a3 3 0 0 0-4.8.5c-.8 1.6 1 2.1 2.2 2.6s3 1 2.2 2.6a3 3 0 0 1-4.8.5%22/><path d=%22M12 6.6v10.8%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%229%22/><path d=%22M14.6 9.2a3 3 0 0 0-4.8.5c-.8 1.6 1 2.1 2.2 2.6s3 1 2.2 2.6a3 3 0 0 1-4.8.5%22/><path d=%22M12 6.6v10.8%22/></g></svg>")}
+.ico.star{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m12 3.4 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 10l6.2-.9z%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m12 3.4 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 10l6.2-.9z%22/></g></svg>")}
+.ico.idea{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.2 17.5a6.5 6.5 0 1 1 5.6 0%22/><path d=%22M9.5 17.5h5M10.2 20.6h3.6%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M9.2 17.5a6.5 6.5 0 1 1 5.6 0%22/><path d=%22M9.5 17.5h5M10.2 20.6h3.6%22/></g></svg>")}
+.ico.settings{-webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 7h8M17.5 7H20M4 12h3.5M13 12h7M4 17h6.5M16 17H20%22/><circle cx=%2214.5%22 cy=%227%22 r=%222.2%22/><circle cx=%2210%22 cy=%2212%22 r=%222.2%22/><circle cx=%2213%22 cy=%2217%22 r=%222.2%22/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M4 7h8M17.5 7H20M4 12h3.5M13 12h7M4 17h6.5M16 17H20%22/><circle cx=%2214.5%22 cy=%227%22 r=%222.2%22/><circle cx=%2210%22 cy=%2212%22 r=%222.2%22/><circle cx=%2213%22 cy=%2217%22 r=%222.2%22/></g></svg>")}
+
+:root{--footmark:"raygency \00b7  A10"}
+
+</style>
+
+<!-- 1 . cover -->
+<section class="slide"><div class="stage">
+  <div class="t-mark">ray<em>gency</em></div>
+  <div class="t-eyebrow">Corporate workshop &middot; Half day &middot; Module A10</div>
+  <h1 class="t-h1">AI in your close, checks built in</h1>
+  <div class="t-rule"></div>
+  <div class="t-stand">You leave with three pieces of your own close work drafted by AI, each one tied out against a number the model did not produce.</div>
+  <div class="t-by">Varun Tyagi &middot; Raygency</div>
+  <div class="t-meta">September 27, 2026 &nbsp; &middot; &nbsp; raygency.com</div>
+  <div class="pageno">1</div>
+</div></section>
+
+
+<!-- 2 . agenda -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The next three hours</div>
+  <h2 class="title">How this runs</h2>
+  <div class="timeline">
+    <div class="tl-row"><div class="tl-time">0:00</div><div class="tl-what"><b>Your newest preparer has never seen your ledger</b><span>What the model is doing when it writes your commentary, and where it is safe to start</span></div></div>
+    <div class="tl-row"><div class="tl-time">0:55</div><div class="tl-what"><b>Break</b><span>Ten minutes. Nothing is due</span></div></div>
+    <div class="tl-row"><div class="tl-time">1:05</div><div class="tl-what"><b>Tie out or throw out</b><span>Invoice extraction, checked against a total the model did not produce</span></div></div>
+    <div class="tl-row"><div class="tl-time">1:50</div><div class="tl-what"><b>Numbers in, words out</b><span>Board pack commentary where your spreadsheet owns every figure</span></div></div>
+    <div class="tl-row"><div class="tl-time">2:35</div><div class="tl-what"><b>If it is not written down, it did not happen</b><span>The review step and the file note your auditor will accept</span></div></div>
+  </div>
+  <div class="pageno">2</div>
+</div></section>
+
+
+<!-- 3 . the moment -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The moment</div>
+  <h2 class="title">One number in this paragraph is not in the ledger</h2>
+  <div class="grid two">
+    <div class="card">
+      <div class="badge label">What it wrote</div>
+      <p>Revenue rose &euro;184k, 12% on August. Material costs rose &euro;39k, broadly in line with volume. Personnel costs rose &euro;27k, driven by the 3.1% collective wage increase in September. Freight out rose &euro;12k.</p>
+    </div>
+    <div class="card">
+      <div class="badge label">What it was given</div>
+      <ul>
+        <li>Revenue: 1,712 against 1,528</li>
+        <li>Material costs: 694 against 655</li>
+        <li>Personnel costs: 598 against 571</li>
+        <li>Freight out: 41 against 29</li>
+      </ul>
+    </div>
+  </div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Find it. Hands up the moment you have.</span></div>
+  <div class="pageno">3</div>
+</div></section>
+
+
+<!-- 4 . the reveal -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The reveal</div>
+  <h2 class="title">The 3.1% came from nowhere, and it reads perfectly</h2>
+  <div class="grid two">
+    <div class="card">
+      <div class="badge label">What it wrote</div>
+      <p>Personnel costs rose &euro;27k, driven by the 3.1% collective wage increase in September.</p>
+    </div>
+    <div class="card">
+      <div class="badge label">Where 3.1% came from</div>
+      <p>Nowhere. There was no wage figure in anything it was given. It is simply the most plausible sentence for a German manufacturer in September.</p>
+    </div>
+  </div>
+  <div class="band">
+    <b>It fits perfectly, and that is the problem.</b>
+    <span>An invented figure reads exactly like a real one. Nothing about it looks wrong until somebody goes looking for its source.</span>
+  </div>
+  <div class="pageno">4</div>
+</div></section>
+
+
+<!-- 5 . the close today -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The close today</div>
+  <h2 class="title">Half of finance teams still need six days or more to close</h2>
+  <div class="chart">
+    <div class="ch-row"><span class="ch-lab">One to three days</span><span class="ch-bar" style="--v:56"></span><span class="ch-val">18%</span></div>
+    <div class="ch-row"><span class="ch-lab">Four to five days</span><span class="ch-bar" style="--v:100"></span><span class="ch-val">32%</span></div>
+    <div class="ch-row"><span class="ch-lab">Six to seven days</span><span class="ch-bar" style="--v:72"></span><span class="ch-val">23%</span></div>
+    <div class="ch-row"><span class="ch-lab">More than seven days</span><span class="ch-bar" style="--v:84"></span><span class="ch-val">27%</span></div>
+  </div>
+  <div class="kicker">The median has sat at about six days for a decade, through every tool that promised to fix it.</div>
+  <div class="source">Ledge, Month end close benchmarks 2025, n = 100, vendor research. Median trend: APQC benchmarking, via Numeric, 2026.</div>
+  <div class="pageno">5</div>
+</div></section>
+
+
+<!-- 6 . chapter 1 -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">Block 1 of 4</div>
+  <div class="chapnum">01</div>
+  <div class="chapter">
+    <h2>Your newest preparer has never seen your ledger</h2>
+    <p>By the end of this block you know what the model is doing when it writes your commentary, and where it is safe to start.</p>
+  </div>
+</div></section>
+
+
+<!-- 7 . analogy: the law firm -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The law firm</div>
+  <h2 class="title">Every law firm has a junior who drafts everything and signs nothing</h2>
+  <div class="grid three">
+    <div class="card">
+      <div class="badge">1</div>
+      <h3>Drafts from the desk</h3>
+      <p>Fast, well read, tireless. Knows only what is in the folder you handed over, not what is in the archive.</p>
+    </div>
+    <div class="card">
+      <div class="badge">2</div>
+      <h3>Cites a case that does not exist</h3>
+      <p>Perfectly formatted, confidently argued, invented. It reads exactly like the real ones beside it.</p>
+    </div>
+    <div class="card">
+      <div class="badge">3</div>
+      <h3>Signs nothing</h3>
+      <p>Nothing leaves under the firm's name until a partner has read it and put their initials on it.</p>
+    </div>
+  </div>
+  <div class="kicker">Hold that picture for thirty seconds. The next slide is what it means for your close.</div>
+  <div class="pageno">7</div>
+</div></section>
+
+
+<!-- 8 . mechanism: hand over, draft, sign -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The mechanism</div>
+  <h2 class="title">It writes what a plausible answer looks like, from what you pasted in</h2>
+  <div class="flow">
+    <div class="fl-step"><span class="ico file"></span><b>Hand over</b><span>Two trial balance columns and the drivers you know. It sees this and nothing else: not your ERP, not last year, not the contract.</span></div>
+    <div class="fl-step"><span class="ico chat"></span><b>Draft</b><span>It predicts the most plausible commentary for those figures. Plausible, not looked up, which is exactly how a 3.1% appears.</span></div>
+    <div class="fl-step"><span class="ico check"></span><b>Sign</b><span>A person ties every number back to the source and puts a name on it. Until then it is a draft.</span></div>
+  </div>
+  <div class="band">
+    <b>Hand over. Draft. Sign.</b>
+    <span>Every use of AI in this session has that heartbeat. The third step is the one that makes it finance work.</span>
+  </div>
+  <div class="pageno">8</div>
+</div></section>
+
+
+<!-- 9 . the adoption gap -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The adoption gap</div>
+  <h2 class="title">Most finance teams use it. Few trust it with the close.</h2>
+  <div class="grid three">
+    <div class="card"><div class="stat">56<small>%</small></div><h3>Use AI in finance</h3><p>Doubled since 2023, and still the lowest of any business function.</p></div>
+    <div class="card"><div class="stat">17<small>%</small></div><h3>Use it in core workflows</h3><p>The rest sit in pilots or on one person's laptop. 45% call it a limited pilot.</p></div>
+    <div class="card"><div class="stat">35<small>%</small></div><h3>Use ChatGPT</h3><p>The most used tool in finance is a general chat window, not a finance product.</p></div>
+  </div>
+  <div class="source">CFO Connect with Oracle NetSuite, Remote and Spendesk, State of AI in Finance 2026.</div>
+  <div class="pageno">9</div>
+</div></section>
+
+
+<!-- 10 . where to start -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Where to start</div>
+  <h2 class="title">Start where volume is high and a wrong draft is cheap to catch</h2>
+  <div class="matrix">
+    <div class="mx-q hi"><b>Variance commentary, invoice fields</b><span>Every month, every entity. A reviewer catches a bad draft in minutes</span></div>
+    <div class="mx-q"><b>Board pack narrative</b><span>High stakes and a lot of words. Draft it, then sign it line by line</span></div>
+    <div class="mx-q"><b>One off memos and lookups</b><span>Cheap to get wrong, and too rare to be worth building for</span></div>
+    <div class="mx-q"><b>Posting journals, releasing payments</b><span>Rare and expensive. A person decides, and the model stays out of it</span></div>
+  </div>
+  <div class="mx-x">Cost of a wrong draft</div>
+  <div class="mx-y">Monthly volume</div>
+  <div class="pageno">10</div>
+</div></section>
+
+
+<!-- 11 . what never goes in -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Before anything goes in</div>
+  <h2 class="title">Three things that never go into a chat window</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge">1</div><h3>Personal data</h3><p>Salaries by name, customer IBANs, anything your DPO would call personal data.</p></div>
+    <div class="card"><div class="badge">2</div><h3>Unreleased results</h3><p>Figures the board has not seen yet, and anything under a disclosure rule.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Check the licence, not the logo</h3><p>Your company contract for the tool is what covers you. A personal login on the same product is not covered.</p></div>
+  </div>
+  <div class="band">
+    <b>That is why the rounds today run on our sample ledger.</b>
+    <span>Real figures go only into the tool your company licensed, and only with the names taken out.</span>
+  </div>
+  <div class="pageno">11</div>
+</div></section>
+
+
+<!-- 12 . tiers, round 1 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Before we start</div>
+  <h2 class="title">Three ways in, and every one of them is real work</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge label">A &middot; Run it</div><h3>Your company tool</h3><p>Your approved AI tool and a real trial balance extract, names removed. Only if your licence covers it.</p></div>
+    <div class="card"><div class="badge label">B &middot; Lite</div><h3>Our sample ledger</h3><p>Any chat window and the sample we hand over. The same exercise, and the same lesson.</p></div>
+    <div class="card"><div class="badge label">C &middot; Watch</div><h3>Follow on screen</h3><p>Watch this round, then run it at your next close with the sheet we hand over.</p></div>
+  </div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Call out your letter. A, B or C.</span></div>
+</div></section>
+
+
+<!-- 13 . round 1 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Round 1 &middot; 20 minutes</div>
+  <h2 class="title">Write the commentary, then make it show its working</h2>
+  <div class="prompt">
+    <div class="tag">Type this</div>
+    <div class="box">Write one sentence of variance commentary for the five largest movements. Then list every number you used and its row.</div>
+  </div>
+  <div class="note">Paste August and September first, in thousands of euros. One rule: give it no reasons yet, and notice where it invents one.</div>
+  <div class="checkpoint"><b>Checkpoint</b><span>How many reasons in your commentary appear nowhere in what you pasted?</span></div>
+  <div class="pageno">13</div>
+</div></section>
+
+
+<!-- 14 . chapter 2 -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">Block 2 of 4</div>
+  <div class="chapnum">02</div>
+  <div class="chapter">
+    <h2>Tie out or throw out</h2>
+    <p>By the end of this block every figure the model extracts ties to a total it did not produce.</p>
+  </div>
+</div></section>
+
+
+<!-- 15 . analogy: the citations -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The law firm</div>
+  <h2 class="title">The partner never rereads the brief. She checks the citations.</h2>
+  <div class="grid two">
+    <div class="card">
+      <div class="badge label">What she skips</div>
+      <p>Forty pages of argument. If every citation holds, the argument usually does too.</p>
+    </div>
+    <div class="card">
+      <div class="badge label">What she checks</div>
+      <p>Every case number, against the court record. One citation that does not exist and the whole brief goes back.</p>
+    </div>
+  </div>
+  <div class="band">
+    <b>Check against something the junior did not write.</b>
+    <span>It is faster than rereading everything the junior did, and it finds what rereading misses.</span>
+  </div>
+  <div class="pageno">15</div>
+</div></section>
+
+
+<!-- 16 . mechanism: the tie out -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The mechanism</div>
+  <h2 class="title">Every extracted figure ties to a total the model did not produce</h2>
+  <div class="flow">
+    <div class="fl-step"><span class="ico file"></span><b>Extract</b><span>Fields into rows: supplier, number, date, net, VAT, gross.</span></div>
+    <div class="fl-step"><span class="ico coin"></span><b>Sum</b><span>One total, computed by your spreadsheet, never by the model.</span></div>
+    <div class="fl-step"><span class="ico search"></span><b>Compare</b><span>Against the bank statement, the payment run or the subledger.</span></div>
+    <div class="fl-step"><span class="ico filter"></span><b>Tolerate</b><span>Zero on a bank balance, a small band on FX. Set per account, in writing.</span></div>
+    <div class="fl-step"><span class="ico alert"></span><b>Escalate</b><span>Outside the band, a person opens the document. No exceptions.</span></div>
+  </div>
+  <div class="kicker">The model never checks its own work. A total it did not produce does.</div>
+  <div class="pageno">16</div>
+</div></section>
+
+
+<!-- 17 . why it is worth it -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Why it is worth it</div>
+  <h2 class="title">Extraction pays for itself inside a year, if the total is yours</h2>
+  <div class="grid three">
+    <div class="card"><div class="stat">9 to 10<small> months</small></div><h3>Payback on extraction, AP and AR</h3><p>Across 160 finance leaders, surveyed January to April 2026.</p></div>
+    <div class="card"><div class="stat">3 to 6<small> months</small></div><h3>Payback on reporting and variance</h3><p>The fastest in a survey of 102 investor backed CFOs. Block 3 is about this one.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Never let it write the total row</h3><p>Ask for rows only. A total the model adds up will agree with its own misreads, and so will a tired reviewer.</p></div>
+  </div>
+  <div class="source">Gartner, September 2026, n = 160. Consero Global 2026 CFO Report, n = 102, investor backed firms only.</div>
+  <div class="pageno">17</div>
+</div></section>
+
+
+<!-- 18 . when errors hide -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">When errors hide</div>
+  <h2 class="title">Two wrong entities can add up to one clean group</h2>
+  <div class="waterfall"><div class="wf-col tot" style="--base:0.00;--h:0.00"><span class="wf-val">0</span><span class="wf-bar"></span><span class="wf-lab">Before<br>the run</span></div><div class="wf-col" style="--base:0.00;--h:82.00"><span class="wf-val">+12</span><span class="wf-bar"></span><span class="wf-lab">Entity A<br>overstated</span></div><div class="wf-col down" style="--base:0.00;--h:82.00"><span class="wf-val">-12</span><span class="wf-bar"></span><span class="wf-lab">Entity B<br>understated</span></div><div class="wf-col tot" style="--base:0.00;--h:0.00"><span class="wf-val">0</span><span class="wf-bar"></span><span class="wf-lab">Group<br>difference</span></div></div>
+  <div class="kicker">It surfaced in entity statutory reporting, not in the group close. Tie out per entity.</div>
+  <div class="source">An illustrative example from Uniqus, Internal controls over generative AI, 2026: stale FX rates, 2,300 intercompany entries auto posted over three days. USD millions.</div>
+  <div class="pageno">18</div>
+</div></section>
+
+
+<!-- 19 . the German turn -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The German turn</div>
+  <h2 class="title">From 2028 your domestic invoices arrive as data, so aim extraction elsewhere</h2>
+  <div class="spine">
+    <div class="spn-node"><b>1 January 2025</b><span>Every business in Germany must be able to receive structured e-invoices, XRechnung or ZUGFeRD.</span></div>
+    <div class="spn-node"><b>1 January 2027</b><span>Sending them becomes mandatory above &euro;800,000 prior year turnover.</span></div>
+    <div class="spn-node"><b>1 January 2028</b><span>All domestic B2B invoices are structured. Nothing left to read off a PDF.</span></div>
+    <div class="spn-node"><b>What stays unstructured</b><span>Foreign suppliers, contracts, small invoices up to &euro;250, bank statement free text. Point the model here.</span></div>
+  </div>
+  <div class="source">Wachstumschancengesetz, section 14 UStG; EDICOM, 2026; VATupdate, March 2026. Check the BMF circulars before you change a process.</div>
+  <div class="pageno">19</div>
+</div></section>
+
+
+<!-- 20 . tiers, round 2 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Round 2 setup</div>
+  <h2 class="title">The same three ways in, with invoices this time</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge label">A &middot; Run it</div><h3>Your own invoices</h3><p>Five real supplier invoices from last month, in your company tool.</p></div>
+    <div class="card"><div class="badge label">B &middot; Lite</div><h3>Our five invoices</h3><p>The sample pack, including the one with the rounding trap in it.</p></div>
+    <div class="card"><div class="badge label">C &middot; Watch</div><h3>Watch, then Monday</h3><p>Watch the tie out, then run it on Monday's supplier batch.</p></div>
+  </div>
+  <div class="band">
+    <b>One rule this round: you add the total, not the model.</b>
+    <span>It comes from the invoices, in your spreadsheet, so it is free to disagree with the model.</span>
+  </div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Hands up if your letter changed since Round 1.</span></div>
+</div></section>
+
+
+<!-- 21 . round 2 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Round 2 &middot; 25 minutes</div>
+  <h2 class="title">Extract five invoices, then let the total catch it</h2>
+  <div class="prompt">
+    <div class="tag">Type this</div>
+    <div class="box">Return one row per invoice: supplier, number, date, net, VAT rate, VAT, gross. Do not round. No total row.</div>
+  </div>
+  <div class="note">Add the gross total yourself, from the invoices. If it differs from the sum of the rows, stop reading rows and find the one document it misread.</div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Did your two totals agree? If not, which invoice broke them?</span></div>
+  <div class="pageno">21</div>
+</div></section>
+
+
+<!-- 22 . chapter 3 -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">Block 3 of 4</div>
+  <div class="chapnum">03</div>
+  <div class="chapter">
+    <h2>Numbers in, words out</h2>
+    <p>By the end of this block you have a board pack paragraph whose every figure came from your spreadsheet.</p>
+  </div>
+</div></section>
+
+
+<!-- 23 . analogy: the exhibit -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The law firm</div>
+  <h2 class="title">A good brief quotes the contract. It never retypes it.</h2>
+  <div class="grid two">
+    <div class="card">
+      <div class="badge label">What the junior writes</div>
+      <p>The argument: why this clause matters, what it means for the client, what to do next.</p>
+    </div>
+    <div class="card">
+      <div class="badge label">What the junior never writes</div>
+      <p>The figures and the dates. Those are copied from the exhibit, and the exhibit is attached.</p>
+    </div>
+  </div>
+  <div class="kicker">The words belong to the junior. The numbers belong to the exhibit.</div>
+  <div class="pageno">23</div>
+</div></section>
+
+
+<!-- 24 . mechanism: numbers in, words out -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The mechanism</div>
+  <h2 class="title">The model gets the table and the reasons. Your spreadsheet does the arithmetic.</h2>
+  <div class="layers">
+    <div class="ly-row"><b>The paragraph</b><span>The model writes it, from the two layers below and from nothing else</span></div>
+    <div class="ly-row"><b>The reasons</b><span>What actually happened, from you: two new contracts, a price rise, a one off</span></div>
+    <div class="ly-row hi"><b>The variance table</b><span>Computed in the spreadsheet: actual, prior, difference, percentage</span></div>
+    <div class="ly-row hi"><b>The ledger</b><span>The source every figure in the paragraph traces back to</span></div>
+  </div>
+  <div class="kicker">Every number in the paragraph is in the table. Every reason is in your notes.</div>
+  <div class="pageno">24</div>
+</div></section>
+
+
+<!-- 25 . the three checks -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The three checks</div>
+  <h2 class="title">Three checks that catch an invented figure without rereading a line</h2>
+  <div class="stack">
+    <div class="st-row"><div class="st-num">01</div><div class="st-what">
+      <b>Tie it to a control total</b>
+      <span>Add up what the paragraph claims and compare it to the table total. Invented components almost never reconcile.</span>
+    </div></div>
+    <div class="st-row"><div class="st-num">02</div><div class="st-what">
+      <b>Take one input away</b>
+      <span>Delete one reason from your notes and run it again. The right answer says the reason is missing. The dangerous one writes a new reason.</span>
+    </div></div>
+    <div class="st-row"><div class="st-num">03</div><div class="st-what">
+      <b>Put it next to last period</b>
+      <span>An invented figure is plausible on its own and odd in a time series. Last month's paragraph is the fastest reviewer you have.</span>
+    </div></div>
+  </div>
+  <div class="source">Adapted from Agentive, AI hallucinations in financial reports, 2026.</div>
+  <div class="pageno">25</div>
+</div></section>
+
+
+<!-- 26 . the contrast -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The contrast</div>
+  <h2 class="title">The same movement, and only one version you could sign</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge label">Numbers only</div><h3>What it guessed</h3><p>"Revenue increased due to higher volumes and timing effects."</p></div>
+    <div class="card"><div class="badge label">Table and notes</div><h3>What you can sign</h3><p>"Revenue rose &euro;184k: two new framework contracts, &euro;131k, and the 1 September price rise, &euro;53k."</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Give it permission to leave a gap</h3><p>Without a NOT EXPLAINED line in the prompt, it fills every gap with a reason that sounds right.</p></div>
+  </div>
+  <div class="kicker">Every figure in the middle card is in the table. Every reason is in your notes.</div>
+  <div class="pageno">26</div>
+</div></section>
+
+
+<!-- 27 . statement: the scar -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">The turn</div>
+  <div class="statement">
+    <h2>Never let it do the <em>arithmetic</em>.</h2>
+    <p>It writes the sentence. The spreadsheet owns the number. Asked to calculate and explain in one breath, it does both confidently, and only one of them is its job.</p>
+  </div>
+  <div class="pageno">27</div>
+</div></section>
+
+
+<!-- 28 . tiers, round 3 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Round 3 setup</div>
+  <h2 class="title">Last round, and the one closest to your real month</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge label">A &middot; Run it</div><h3>Your own variance table</h3><p>Last month against the month before, computed in your spreadsheet, names removed.</p></div>
+    <div class="card"><div class="badge label">B &middot; Lite</div><h3>Our sample table</h3><p>The Stuttgart sample, with three reasons already written out for you.</p></div>
+    <div class="card"><div class="badge label">C &middot; Watch</div><h3>Watch, then your close</h3><p>Watch the three checks run, then use them on your next board pack.</p></div>
+  </div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Who is bringing a real table? Hands up.</span></div>
+</div></section>
+
+
+<!-- 29 . round 3 -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Round 3 &middot; 25 minutes</div>
+  <h2 class="title">Write the board pack paragraph from your own table</h2>
+  <div class="prompt">
+    <div class="tag">Type this</div>
+    <div class="box">Write the board pack paragraph from this table and my notes. Use only its numbers. If unexplained, write NOT EXPLAINED.</div>
+  </div>
+  <div class="note">Paste the finished table and three things that really happened. One rule: no arithmetic by the model. Then run the three checks.</div>
+  <div class="checkpoint"><b>Checkpoint</b><span>Did it write NOT EXPLAINED anywhere? Read that line out.</span></div>
+  <div class="pageno">29</div>
+</div></section>
+
+
+<!-- 30 . chapter 4 -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">Block 4 of 4</div>
+  <div class="chapnum">04</div>
+  <div class="chapter">
+    <h2>If it is not written down, it did not happen</h2>
+    <p>Every law firm keeps a file note: who decided what, on which document, and when. By the end of this block you can write yours for the AI step.</p>
+  </div>
+</div></section>
+
+
+<!-- 31 . mechanism: GoBD -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The mechanism</div>
+  <h2 class="title">GoBD has no AI chapter. It does not need one.</h2>
+  <table class="tbl">
+    <tr><th>Principle</th><th>In the GoBD</th><th>For an AI drafted entry</th></tr>
+    <tr><td>Traceability</td><td>Nachvollziehbarkeit</td><td>Who checked which draft, against what</td></tr>
+    <tr><td>Verifiability</td><td>Nachpr&uuml;fbarkeit</td><td>Source and draft are both kept</td></tr>
+    <tr><td>Immutability</td><td>Unver&auml;nderbarkeit</td><td>Approved version logged, not overwritten</td></tr>
+    <tr><td>Completeness</td><td>Vollst&auml;ndigkeit</td><td>The AI step is in your process documentation</td></tr>
+  </table>
+  <div class="kicker">The principles already cover every preparer. The model is simply a new one.</div>
+  <div class="source">GoBD, BMF letter; Lexware on Verfahrensdokumentation, 2026. Not legal advice: agree the wording with your Steuerberater.</div>
+  <div class="pageno">31</div>
+</div></section>
+
+
+<!-- 32 . the four eyes -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The four eyes</div>
+  <h2 class="title">Two people and a log stand between the draft and the ledger</h2>
+  <div class="swim" style="--cols:4">
+    <div class="sw-h"></div>
+    <div class="sw-h">Draft</div><div class="sw-h">Tie out</div><div class="sw-h">Review</div><div class="sw-h">Post</div>
+    <div class="sw-lane">Preparer</div>
+    <div class="sw-cell on">Runs the prompt in the approved tool</div><div class="sw-cell on">Adds the total, marks the exceptions</div><div class="sw-cell"></div><div class="sw-cell"></div>
+    <div class="sw-lane">Reviewer</div>
+    <div class="sw-cell"></div><div class="sw-cell">Opens two exceptions at random</div><div class="sw-cell on">Reads every figure against the table, initials it</div><div class="sw-cell on">Releases it</div>
+    <div class="sw-lane">The log</div>
+    <div class="sw-cell on">Keeps the input and the draft</div><div class="sw-cell"></div><div class="sw-cell on">Records who approved, and when</div><div class="sw-cell">Keeps the posted version</div>
+  </div>
+  <div class="kicker">Your close already has a four eyes principle. The AI step goes through it, not around it.</div>
+  <div class="pageno">32</div>
+</div></section>
+
+
+<!-- 33 . the file note -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">The file note</div>
+  <h2 class="title">One paragraph in your process documentation covers the AI step</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge">1</div><h3>What the tool does</h3><p>Drafts variance commentary and extracts invoice fields. It posts nothing.</p></div>
+    <div class="card"><div class="badge">2</div><h3>What a person checks</h3><p>Ties every figure to the variance table or a control total, then initials the draft.</p></div>
+    <div class="card tip"><div class="badge">3</div><h3>Write it for the process, once</h3><p>Not per entry. Describe the step, the check and the log, and update it when the tool changes.</p></div>
+  </div>
+  <div class="kicker">That paragraph is your file note. It is the first thing an auditor reads.</div>
+  <div class="pageno">33</div>
+</div></section>
+
+
+<!-- 34 . where this breaks -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Where this breaks</div>
+  <h2 class="title">What I would not trust it with yet</h2>
+  <div class="stack">
+    <div class="st-row"><div class="st-num">01</div><div class="st-what">
+      <b>Judging intent</b>
+      <span>Accrual, timing or control failure is a judgement about your business. It will offer one, fluently.</span>
+    </div></div>
+    <div class="st-row"><div class="st-num">02</div><div class="st-what">
+      <b>The productivity numbers are softer than the surveys</b>
+      <span>Executives reported AI gains averaging 1.8% in 2025, and revenue data implies much less, possibly a one year lag. Only 17% of CFOs see significant value from productivity AI.</span>
+    </div></div>
+    <div class="st-row"><div class="st-num">03</div><div class="st-what">
+      <b>Much of the extraction work is going away in Germany</b>
+      <span>From 2028 domestic invoices arrive structured. Build for contracts and foreign suppliers instead.</span>
+    </div></div>
+  </div>
+  <div class="source">Duke Fuqua with the Federal Reserve Banks of Richmond and Atlanta, March 2026, about 750 executives. Gartner, July 2026, n = 204.</div>
+  <div class="pageno">34</div>
+</div></section>
+
+
+<!-- 35 . statement -->
+<section class="slide"><div class="stage dark">
+  <div class="eyebrow">What you are actually building</div>
+  <div class="statement">
+    <h2>Your auditor will never ask which model you used. They will ask <em>who checked it</em>.</h2>
+    <p>The tool will change twice before your next audit. The tie out, the table and the file note will still be there, with a name against each one.</p>
+  </div>
+  <div class="pageno">35</div>
+</div></section>
+
+
+<!-- 36 . close -->
+<section class="slide"><div class="stage">
+  <div class="eyebrow">Before you go</div>
+  <h2 class="title">What goes back to your desk on Monday</h2>
+  <div class="grid three">
+    <div class="card"><div class="badge">1</div><h3>Keep the three checks</h3><p>Tie to a total, take an input away, compare to last period. They work on any tool and any preparer.</p></div>
+    <div class="card"><div class="badge">2</div><h3>Keep the rule</h3><p>Numbers in, words out. The spreadsheet calculates, the model writes, and NOT EXPLAINED beats a guess.</p></div>
+    <div class="card"><div class="badge">3</div><h3>Do this at your next close</h3><p>Run one AI drafted variance paragraph through the three checks. Send me the first number that did not tie.</p></div>
+  </div>
+  <div class="social">
+    <a href="https://www.raygency.com" aria-label="Raygency"><span class="ico globe"></span></a>
+    <a href="https://www.linkedin.com/in/varuntyagi83" aria-label="LinkedIn"><span class="ico linkedin"></span></a>
+    <a href="https://github.com/varuntyagi83" aria-label="GitHub"><span class="ico github"></span></a>
+    <a href="https://www.meetvaruntyagi.com" aria-label="Portfolio"><span class="ico portfolio"></span></a>
+    <a href="https://medium.com/@varun.tyagi83" aria-label="Medium"><span class="ico medium"></span></a>
+  </div>
+  <div class="band">
+    <b>Nobody on your team will announce they are using it.</b>
+    <span>The commentary is already being drafted in a browser tab, and nobody has written down who checked it.</span>
+  </div>
+  <div class="pageno">36</div>
+</div></section>
+
+
+<nav class="nav" aria-label="Slide navigation">
+  <button id="prev" aria-label="Previous slide">&#8249;</button>
+  <span class="count" id="counter">1 / 36</span>
+  <button id="next" aria-label="Next slide">&#8250;</button>
+</nav>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const counter = document.getElementById('counter');
+let current = 0;
+
+const go = i => {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides[current].scrollIntoView({behavior: 'smooth'});
+};
+
+document.getElementById('prev').addEventListener('click', () => go(current - 1));
+document.getElementById('next').addEventListener('click', () => go(current + 1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); go(current - 1); }
+  if (e.key === 'Home') { e.preventDefault(); go(0); }
+  if (e.key === 'End')  { e.preventDefault(); go(slides.length - 1); }
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      current = slides.indexOf(entry.target);
+      counter.textContent = (current + 1) + ' / ' + slides.length;
+    }
+  });
+}, {threshold: 0.5});
+slides.forEach(s => io.observe(s));
+</script>
